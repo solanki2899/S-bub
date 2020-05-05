@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>POP !</title>
+    <style>
+        #pause img {
+            width: 80px;
+            height: 80px;
+
+
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        body {
+            background-color: black;
+            margin: 0;
+            margin-bottom: 0;
+        }
+
+        canvas {
+            background-color: black;
+            display: block;
+        }
+
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="pause" onclick="pause()"><img id="pim" src="pause.svg"></div>
+    
+    <script src="./js/canvas.js"></script>
+</body>
+
+</html>
