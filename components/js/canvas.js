@@ -1,35 +1,44 @@
 const canvas = document.getElementById('canvas')
 const c = canvas.getContext('2d')
-
 canvas.width = innerWidth
 canvas.height = innerHeight
+let bubbles
+var d;
+var e;
+var paused = false
+var score = 0;
+var initial = 15
+let timer = 10
+let alreadyin = 0;
+var end = 0
+let time = 1000
+var count = initial;
+const colors = ['#2185C5', '#7ECEFD', '#FFF685', '#FF7F66']                                  /*array of colors*/
 
-const colors = ['#2185C5', '#7ECEFD', '#FFF685', '#FF7F66']
 
-// class
-function Bubble(x, y, radius, color) {
+function Bubble(x, y, radius, color) {                                                         /*constructor function with 4 paramenter*/
     this.x = x
     this.velocity = {
         x: 5 * (Math.random() - 0.5),
         y: 5 * (Math.random() - 0.5)
     }
     this.y = y
-
     this.radius = radius
     this.color = color
     this.mass = Math.floor(Math.pow(this.radius, 3))
-    this.update = bubbles => {
+
+    this.update = bubbles => {                                            /*update function for bubbles to change their paramenters for animation*/
+        
+        
         this.draw()
         for (let i = 0; i < bubbles.length; i++) {
             if (this === bubbles[i]) {
                 continue
             }
             if (distance(this.x, this.y, bubbles[i].x, bubbles[i].y) - (this.radius + bubbles[i].radius) < 0) {
-                resolveCollision(this, bubbles[i])
-
+                resolveCollision(this, bubbles[i])                                              /*calling function to resolve collision b/w any 2 bubbles*/
             }
         }
-
         if (this.x - this.radius <= 0 || this.x + this.radius >= innerWidth) {
             this.velocity.x = -this.velocity.x
         }
@@ -42,7 +51,9 @@ function Bubble(x, y, radius, color) {
 
 
     }
+
     this.draw = () => {
+                                                                                            /*function for drawing bubbles to the canvas*/
         c.beginPath()
         c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false)
         c.fillStyle = this.color
@@ -72,28 +83,23 @@ function Bubble(x, y, radius, color) {
 
 
 
-let bubbles
-var d;
-var e;
-var score = 0;
-var initial = 15
-let timer = 10
-let alreadyin = 0;
-let time = 1000
-var count = initial;
 
-// Implementation
+
+
 
 function init() {
+                                                                                        /*function to initialise the webpage*/
     bubbles = []
-
     for (let i = 0; i < initial; i++) {
-        newbub();
+        newbub();                                                                           /*calling funciton to create bubbles on the start of the game*/
 
     }
 }
 
 function newbub() {
+                                                                                            /*creating random bubbles*/
+
+    //    clearing timeouts because they were interfering
     if (a) {
         clearTimeout(a);
     }
@@ -110,12 +116,12 @@ function newbub() {
 
 
 
-    radius = Math.random() * 30 + 30
+    radius = randomIntFromRange(30,60)                                                      /*randomising new bubble's radius*/
     x = Math.random() * (canvas.width - 2 * radius) + radius
     y = Math.random() * (canvas.height - 2 * radius) + radius
     if (bubbles[0]) {
         for (k = 0; k < bubbles.length; k++) {
-            if (distance(x, y, bubbles[k].x, bubbles[k].y) < radius + bubbles[k].radius) {
+            if (distance(x, y, bubbles[k].x, bubbles[k].y) < radius + bubbles[k].radius) {     /*checking that new bubbles dont overlap with existing ones */
                 x = Math.random() * (canvas.width - 2 * radius) + radius
                 y = Math.random() * (canvas.height - 2 * radius) + radius
                 k = -1;
@@ -128,7 +134,7 @@ function newbub() {
 
     if (count < 1 && !paused) {
 
-        if (area() > 0.40) {
+        if (area() > 0.40) {                                    /*slowing down bubble generation if bubbles cover up lamost whole screen */
             var a = setTimeout(newbub, 2000)
 
         } else {
@@ -139,24 +145,24 @@ function newbub() {
             var b = setTimeout(newbub, time)
         }
     }
-    if (area() < 0.36) {
+    if (area() < 0.36) {                                        /*to reset timer if bubbles no more cover up enough area*/
         timer = 10
         alreadyin = 0
     }
-    if (area() > 0.36 && !alreadyin) {
+    if (area() > 0.36 && !alreadyin) {                          /*starting countdown if bubbles cover up specified area of the screen*/
 
         countdown()
     }
 
-    bubbles.push(new Bubble(x, y, radius, randomColor(colors)))
+    bubbles.push(new Bubble(x, y, radius, randomColor(colors)))             /*pushing new bubble to array*/
 }
 
-// timer function
-function countdown() {
+
+function countdown() {                                                      /*function to countdown from 10 to 0*/
 
     alreadyin = 1
 
-    if (timer == 0) {
+    if (timer == 0) {                                                        /*ends game when timer reaches 0*/
         ends()
     }
     if (area() > 0.36 && !paused) {
@@ -167,8 +173,8 @@ function countdown() {
     }
 }
 
-// Animation Loop
-function animate() {
+
+function animate() {                                                             /*animation loop with RAF*/
     if (!paused) {
         requestAnimationFrame(animate)
         c.clearRect(0, 0, canvas.width, canvas.height)
@@ -176,16 +182,16 @@ function animate() {
             danger()
         }
         bubbles.forEach(bubble => {
-            bubble.update(bubbles)
+            bubble.update(bubbles)                                               /*calling update function of every bubble*/
         })
     }
-    if (area() > 0.36) {
+    if (area() > 0.36) {                                                         /*calling function to draw timer on canvas if screen fills upto specified ratio*/
         danger()
     }
 }
 
-// drawing timer on canvas
-function danger() {
+
+function danger() {                                                               /*function to draw timer on the canvas when in danger*/
     c.font = " 70px Arial";
     c.fillStyle = "red";
     c.strokeStyle = "red";
@@ -193,51 +199,62 @@ function danger() {
     c.strokeRect(10, 10, 80, 70);
     c.fillText(timer, 50, 70);
 }
-var paused = false
 
-// pause implementation
-function pause() {
+
+
+function pause() {                                                                  /*function to pause the game when pause button is tapped*/
 
     paused = !paused
     if (paused) {
         document.getElementById("pim").src = "./resume.svg";
     } else {
         document.getElementById("pim").src = "./pause.svg";
+
+
+
+
+        if (area() > 0.40) {                                                        /*restarting bubble generation on game resume*/
+            var c = setTimeout(newbub, 2000)
+        } else {
+
+            if (time >= 300) {
+                time -= 10
+            }
+            d = setTimeout(newbub, time)
+
+        }
+        animate()                                                                   /*restarting animation when game resumes*/
+
+
+
+
+
     }
-    if (end) {
+    if (end) {                                                                      /*changing resume button to restart if the game ends*/
         location.reload();
     }
 
     clearTimeout(e)
     alreadyin = 0
-    if (area() > 0.40) {
-        var c = setTimeout(newbub, 2000)
-    } else {
 
-        if (time >= 300) {
-            time -= 10
-        }
-        d = setTimeout(newbub, time)
-
-    }
-    animate()
 
 }
 
-// for calculating area
-function area() {
+
+function area() {                                                                   /*funtion to return fraction of screen area filled */
     let sum = 0
     for (let i = 0; i < bubbles.length; i++) {
         sum += Math.PI * Math.pow(bubbles[i].radius, 2)
     }
     return sum / (canvas.width * canvas.height)
 }
-// for popping bubbles
+
 function popped(event) {
+                                                                                    /*funtion for popping bubbles on click*/
 
     for (let i = 0; i < bubbles.length; i++) {
         if (distance(bubbles[i].x, bubbles[i].y, event.clientX, event.clientY) < bubbles[i].radius && !paused) {
-            score += (70 - bubbles[i].radius)
+            score += (70 - bubbles[i].radius)                                         /*adding 70-radius of popped bubble to the score*/
 
             bubbles.splice(i, 1)
 
@@ -249,8 +266,8 @@ function popped(event) {
 
 document.addEventListener("click", popped);
 
-// on game over
-function ends() {
+
+function ends() {                                                                      /*function that fires up when the game ends*/
     end = 1
     paused = 1
     document.getElementById("pim").src = "./resume.svg";
@@ -264,10 +281,10 @@ function ends() {
 
     }
 }
-var end = 0
 
-// storing and updating highscore
-function highsc() {
+
+
+function highsc() {                                                                       /*funciton to store the highscore*/
     if (typeof (Storage) !== "undefined") {
         var scores = false;
 
@@ -288,15 +305,15 @@ function highsc() {
 }
 
 
-function randomIntFromRange(min, max) {
+function randomIntFromRange(min, max) {                                                    /*function that returns random integer between 2 numbers*/
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-function randomColor(colors) {
+function randomColor(colors) {                                                              /*function that returns random color*/
     return colors[Math.floor(Math.random() * colors.length)]
 }
 
-function distance(x1, y1, x2, y2) {
+function distance(x1, y1, x2, y2) {                                                         /*function to calculate distance b/w two points*/
     const xDist = x2 - x1
     const yDist = y2 - y1
 
@@ -306,7 +323,7 @@ function distance(x1, y1, x2, y2) {
 
 
 
-addEventListener('resize', () => {
+addEventListener('resize', () => {                                                          /*fto restart game if screen resizes*/
     canvas.width = innerWidth
     canvas.height = innerHeight
     location.reload();
@@ -315,18 +332,11 @@ addEventListener('resize', () => {
 })
 
 
-function rotate(velocity, angle) {
-    const rotatedVelocities = {
-        x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
-        y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
-    };
-
-    return rotatedVelocities;
-}
 
 
-// for collision b/w bubbles
-function resolveCollision(particle, otherParticle) {
+
+
+function resolveCollision(particle, otherParticle) {                                        /*function to resolve collision b/w two bubbles*/
     const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
     const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
 
@@ -368,8 +378,17 @@ function resolveCollision(particle, otherParticle) {
     }
 }
 
+function rotate(velocity, angle) {                                              /*for changing direction after colllision b/w bubbles*/
+    const rotatedVelocities = {
+        x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
+        y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
+    };
+
+    return rotatedVelocities;
+}
 
 
 
-init()
+
+init()                                                                      /*Calling functions to start the game*/
 animate()
